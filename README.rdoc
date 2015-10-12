@@ -1,0 +1,62 @@
+= ActiverecordStrategystore
+# WARNING : THIS IS ONLY A PROF OF CONCEPT.
+
+# ActiveRecord::StrategyStore
+
+[ActiveRecord::StrategyStore](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) ActiveRecord::Store with various casted fields in order to perform a strategy.
+
+
+## Installation
+
+Add this line to your application's Gemfile:
+
+    gem 'activerecord-strategystore'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install activerecord-strategystore
+
+## Usage
+
+It works like [ActiveRecord::Store documentation](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) and then you declare your attributes into your strategy.
+
+```ruby
+# == Schema Information
+# Table name: software
+#  id          :integer not null, primary key
+#  name        :string
+#  settings    :text
+  class Sofware
+    acts_as_strategy_store(:settings, strategy: FirstSoftwareStrategy)
+  end
+
+class FirstSoftwareStrategy < StrategyStores::Strategy
+  strategy_columns do |s|
+    s.string :code, null: false, default: 'sample'
+    s.integer :num, null: false, default: 0
+  end
+
+  def self.perform(*args)
+    return "#{self.name} #{code} #{args}"
+  end
+end
+
+class SecondSoftwareStrategy < StrategyStores::Strategy
+  strategy_columns do |s|
+    s.string :code, null: false, default: 'sample'
+    s.integer :num, null: false, default: 0
+  end
+
+  def self.perform(*args)
+    return "#{self.name} #{code} #{args}"
+  end
+end
+
+Sofware.all.each do |soft|
+  soft.perform
+end
+```
