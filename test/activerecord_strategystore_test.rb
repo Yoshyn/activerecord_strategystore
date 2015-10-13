@@ -10,7 +10,12 @@ class ActiverecordStrategystoreTest < ActiveSupport::TestCase
     assert_equal ['FirstSoftwareStrategy', 'SecondSoftwareStrategy'], SecondSoftwareStrategy.strategies
   end
 
-  # Must test that strategy not require are not available
+  # def test_strategies_implementation_list
+  #   assert_equal ['FirstSoftwareStrategy', 'SecondSoftwareStrategy'], StrategyStores::Strategy.strategies_implementations(:sofware)
+  #   assert_equal ['FirstSoftwareStrategy', 'SecondSoftwareStrategy'], FirstSoftwareStrategy.strategies
+  #   assert_equal ['FirstSoftwareStrategy', 'SecondSoftwareStrategy'], SecondSoftwareStrategy.strategies
+  #   assert_equal ['OtherStrategy'],                                   StrategyStores::Strategy.strategies(:other)
+  # end
 
   def test_can_instantize_and_change_strategy
     sw = ::Software.create(

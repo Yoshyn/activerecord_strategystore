@@ -3,9 +3,9 @@ module StrategyStores
     module Store
       extend ActiveSupport::Concern
       included do
-        # TODO : Add an option strategy_reference|name
-        # DO the same in Strategy class with class_attribute
         def self.acts_as_strategy_store(store_attribute, options={})
+          # TODO : strategy_implementation = options[:strategy_implementation]
+
           options[:accessors] = [:strategy_class, :strategy]
           store store_attribute, options
 
@@ -20,7 +20,7 @@ module StrategyStores
             end
           end
 
-          # TODO : Make possible to accept hash of parameter
+          # TODO : Make possible to accept hash of parameter (accept_neested)
           #Define strategy=
 
           define_method(:strategy_changed?) do
@@ -33,9 +33,10 @@ module StrategyStores
             super().to_s.safe_constantize
           end
 
-          Array.wrap(::StrategyStores.configuration.perform_method_names).each do |perform_method_name|
-            define_method(perform_method_name) do |*args|
-              strategy.send(perform_method_name, *args)
+          # TODO : Use the strategy_implementation or the default_perform_method_names
+          Array.wrap(::StrategyStores.config.default_method_names).each do |method_name|
+            define_method(method_name) do |*args|
+              strategy.send(method_name, *args)
             end
           end
         end

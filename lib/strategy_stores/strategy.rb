@@ -7,13 +7,25 @@ module StrategyStores
     include ActiveModel::Dirty
     include ActiveModel::Serialization
 
-    REGISTERED_PROCESSORS = []
-    class_attribute :strategy_columns, instance_accessor: false
+    REGISTERED_STRATEGIES = []
 
+    class_attribute :strategy_columns,        instance_accessor: false
+    # class_attribute :strategy_implementation, instance_accessor: false
+    # String
 
-    Array.wrap(::StrategyStores.configuration.perform_method_names).each do |perform_method_name|
-      define_method(perform_method_name) do |*args|
-        raise NotImplementedError.new("Abstract method #{perform_method_name} not implemented, or unsupported operation")
+    # def self.implement_strategy(strategy_identifier)
+    #   StrategyStores.configuration.strategies[strategy_identifier].each do |options|
+    #     # if method = options[:perform_method] && method.is_a?(Proc)
+    #     # elsif method_names = options[:perform_method_names]
+    #     # else
+    #     #    define StrategyStores.configuration.default_perform_method
+    #     # end
+    #   end
+    # end
+
+    Array.wrap(::StrategyStores.config.default_method_names).each do |method_name|
+      define_method(method_name) do |*args|
+        raise NotImplementedError.new("Abstract method #{method_name} not implemented, or unsupported operation")
       end
     end
 
@@ -42,20 +54,20 @@ module StrategyStores
     end
 
     private
-
     def self.register_strategies
-      if ::StrategyStores.configuration.strategies_folder
-        strategy_files = File.join(::StrategyStores.configuration.strategies_folder, '/*_strategy.rb')
+      if definition_path = ::StrategyStores.config.default_definition_path
+        suffix         = ::StrategyStores.config.default_file_suffix
+        strategy_files = File.join(definition_path, "*_#{suffix}.rb")
         Dir[File.expand_path(strategy_files, __FILE__)].each do |path|
           require_relative path
         end
       end
-      @_strategies = REGISTERED_PROCESSORS
+      @_strategies = REGISTERED_STRATEGIES
     end
 
     def self.inherited(child);
       puts "StrategyStore::Strategies : Register strategy #{child.name}"
-      REGISTERED_PROCESSORS << child.name;
+      REGISTERED_STRATEGIES << child.name;
     end
 
     def self.register_strategy_columns(columns)
