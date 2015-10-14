@@ -4,9 +4,10 @@ module StrategyStores
       extend ActiveSupport::Concern
       included do
         def self.acts_as_strategy_store(store_attribute, options={})
-          # TODO : strategy_implementation = options[:strategy_implementation]
 
-          options[:accessors] = [:strategy_class, :strategy]
+          options[:accessors]     = [:strategy_class, :strategy]
+          strategy_implementation = options[:strategy_implementation] || :default
+
           store store_attribute, options
 
           define_method(:initialize_or_retrive_strategy_hash) do
@@ -16,8 +17,14 @@ module StrategyStores
           define_method(:strategy) do
           # def strategy  # Does not work with ActiveSupport.on_load(:after_initialize)
             @_strategy = (!strategy_changed? && @_strategy) || begin
-              strategy_class && strategy_class.new(self, initialize_or_retrive_strategy_hash)
+              strategy_class && strategy_class.new(
+                self, initialize_or_retrive_strategy_hash
+              )
             end
+          end
+
+          def available_strategies
+            # strategy_implementation # Somethings here
           end
 
           # TODO : Make possible to accept hash of parameter (accept_neested)

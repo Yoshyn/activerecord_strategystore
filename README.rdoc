@@ -1,6 +1,8 @@
 = ActiverecordStrategystore
 # WARNING : THIS IS ONLY A PROF OF CONCEPT.
 
+# TODO : Freeze all string if possible
+
 # ActiveRecord::StrategyStore
 
 [ActiveRecord::StrategyStore](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) ActiveRecord::Store with various casted fields in order to perform a strategy.
@@ -31,7 +33,7 @@ It works like [ActiveRecord::Store documentation](http://api.rubyonrails.org/cla
 #  name        :string
 #  settings    :text
   class Sofware
-    acts_as_strategy_store(:settings, strategy: FirstSoftwareStrategy)
+    acts_as_strategy_store(:settings)
   end
 
 class FirstSoftwareStrategy < StrategyStores::Strategy
@@ -60,3 +62,27 @@ Sofware.all.each do |soft|
   soft.perform
 end
 ```
+
+## Run several different strategy :
+
+```ruby
+StrategyStores.configure do |config|
+  config.register_strategy(:software)
+end
+
+class Sofware
+  acts_as_strategy_store(:settings, strategy_id: 'software')
+end
+
+class FirstSoftwareStrategy < StrategyStores::Strategy
+  strategy_columns_for(:software) do |s|
+    /*...*/
+  end
+end
+
+class SecondSoftwareStrategy < StrategyStores::Strategy
+  strategy_columns_for(:software) do |s|
+    /*...*/
+  end
+end
+``

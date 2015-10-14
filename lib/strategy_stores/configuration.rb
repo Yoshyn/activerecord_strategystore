@@ -10,15 +10,18 @@
 
 module StrategyStores
   class Configuration
-
     class DSL
-
       ATTRIBUTES = [:definition_path, :file_suffix, :method_names]
       attr_accessor *ATTRIBUTES
 
       def initialize
-        yield self
+        @definition_path = nil # TODO Accept a proc here to make possible to use Rails.root
+        @file_suffix     = 'strategy'
+        @method_names    = :perform
+        yield self if block_given?
       end
+
+      def method_names; Array.wrap(@method_names); end
     end
 
     def initialize
@@ -31,7 +34,8 @@ module StrategyStores
     end
 
     def strategy(strategy_name)
-      @registered_strategies[strategy_name] || default_strategy
+      raise "StrategyStores::Configuration Unknow strategy #{strategy_name}" unless @registered_strategies[strategy_name]
+      @registered_strategies[strategy_name]
     end
 
     DSL::ATTRIBUTES.each do |attribute|
@@ -45,13 +49,7 @@ module StrategyStores
 
     protected
     def default_strategy
-      @_default_strategy ||= begin
-        register_strategy('default') do |strategy|
-          strategy.definition_path   = nil # TODO Accept a proc here to make possible to use Rails.root
-          strategy.method_names      = :perform
-          strategy.file_suffix       = 'strategy'
-        end
-      end
+      @_default_strategy ||= register_strategy('default')
     end
   end
 

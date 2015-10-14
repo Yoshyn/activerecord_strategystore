@@ -1,5 +1,6 @@
-class SecondSoftwareStrategy < StrategyStores::Strategy
-  columns do |column|
+class OtherStrategy < StrategyStores::Strategy
+
+  strategy_columns_for(:other_strategy) do |column|
     column.string  :other_str, null: false, default: 'other_str_sample'
   end
 

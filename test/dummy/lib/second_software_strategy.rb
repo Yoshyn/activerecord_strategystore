@@ -1,5 +1,6 @@
 class SecondSoftwareStrategy < StrategyStores::Strategy
-  columns do |column|
+
+  strategy_columns_for(:my_amazing_strategy) do |column|
     column.string  :ssp_str, null: false, default: 'ssp_sample'
     column.integer :ssp_num, null: false, default: 0
   end
