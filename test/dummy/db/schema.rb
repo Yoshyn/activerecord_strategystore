@@ -16,8 +16,9 @@ ActiveRecord::Schema.define(version: 20151012221512) do
   create_table "softwares", force: :cascade do |t|
     t.string   "name"
     t.text     "settings"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.text     "other_settings"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
   end
 
 end

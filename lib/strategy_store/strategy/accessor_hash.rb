@@ -1,5 +1,5 @@
 module StrategyStore
-  module Strategies
+  module Strategy
     class AccessorHash
 
       attr_accessor :source
@@ -28,7 +28,7 @@ module StrategyStore
       end
 
       def []=(key, value); source[key] = cast(key, value); end
-      def [](key);         cast(key, source[key]);           end
+      def [](key);         cast(key, source[key]);         end
 
       def method_missing(method_name, *args, &block)
         if source.respond_to?(method_name, false) # FIXME : include_private method?
@@ -39,9 +39,7 @@ module StrategyStore
       end
 
       private
-      def cast(key, value)
-        columns[key].cast(value)
-      end
+      def cast(key, value); columns[key].cast(value); end
 
       def default_attributes
         columns.values.inject({}) do |acc, column|

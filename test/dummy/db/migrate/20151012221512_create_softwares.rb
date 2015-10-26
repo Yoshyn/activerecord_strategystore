@@ -3,6 +3,7 @@ class CreateSoftwares < ActiveRecord::Migration
     create_table :softwares do |t|
       t.string :name
       t.text :settings
+      t.text :other_settings
 
       t.timestamps null: false
     end

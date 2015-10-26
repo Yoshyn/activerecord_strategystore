@@ -1,5 +1,5 @@
 module StrategyStore
-  module Strategies
+  module Strategy
     class DSL
       attr_reader :columns
 

@@ -1,9 +1,19 @@
-StrategyStores.configure do |config|
-  config.default_definition_path  = File.join(Rails.root, 'lib')
+StrategyStore.configure do |config|
+  # config.default_strategy_methods = [:process, :run]
 
-  config.register_strategy(:other_strategy)
-
-  config.register_strategy(:my_amazing_strategy) do |rs|
-    rs.method_names = [:perform_process_1, :perform_process_2]
+  config.register_strategy(:software_strategy) do |strategy|
+    strategy.strategy_methods = [:perform_process_1, :perform_process_2]
   end
+
+  config.register_strategy(:other_strategy) do |strategy|
+    strategy.strategy_methods = [:process, :run]
+  end
+
+  config.register_strategy(:my_amazing_strategy)
 end
+
+require 'first_software_strategy'
+require 'second_software_strategy'
+
+require 'other_strategy'
+require 'default_strategy'

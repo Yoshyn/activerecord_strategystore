@@ -32,57 +32,95 @@ It works like [ActiveRecord::Store documentation](http://api.rubyonrails.org/cla
 #  id          :integer not null, primary key
 #  name        :string
 #  settings    :text
-  class Sofware
-    acts_as_strategy_store(:settings)
-  end
+class Sofware
+  acts_as_strategy_store(:settings)
+end
 
-class FirstSoftwareStrategy < StrategyStores::Strategy
+class FirstSoftwareStrategy
+  include ::StrategyStore::Strategy::Implementation
+
   strategy_columns do |s|
-    s.string :code, null: false, default: 'sample'
-    s.integer :num, null: false, default: 0
+    s.string  :code, null: false, default: 'first_code'
+    s.integer :num,  null: false, default: 0
+    s.boolean :bool, null: false, default: false
   end
 
-  def self.perform(*args)
-    return "#{self.name} #{code} #{args}"
+  def perform(*args)
+    return "#{self.name} #{code} #{num} #{bool} #{args}"
   end
 end
 
-class SecondSoftwareStrategy < StrategyStores::Strategy
-  strategy_columns do |s|
-    s.string :code, null: false, default: 'sample'
-    s.integer :num, null: false, default: 0
-  end
+class SecondSoftwareStrategy
+  include ::StrategyStore::Strategy::Implementation
 
-  def self.perform(*args)
-    return "#{self.name} #{code} #{args}"
+  strategy_columns do |s|
+    s.string  :code, null: false, default: 'second_code'
   end
 end
 
-Sofware.all.each do |soft|
-  soft.perform
+soft = Sofware.create(name: 'Sofware1')
+soft.strategy                         # nil
+soft.available_strategies             # [FirstSoftwareStrategy, SecondSoftwareStrategy]
+
+soft.strategy = FirstSoftwareStrategy # Can also be string
+
+soft.strategy.perform(1) # => "FirstSoftwareStrategy first_code 0 false [1]"
+
+soft.strategy.code = 'new_code'
+soft.strategy.bool = '1'
+soft.strategy.bool # True
+
+soft.save
+soft.reload!
+soft.perform(2,3)     # => "FirstSoftwareStrategy new_code 0 true [2,3]"
+
+soft.strategy = SecondSoftwareStrategy
+soft.strategy.perform # => raise NotImplementedError
+```
+
+## Use anothers method(s) than perform :
+
+```ruby
+StrategyStore.configure do |config|
+  config.default_strategy_methods = [:process, :run]
 end
 ```
 
-## Run several different strategy :
+Then you need to defined theses methods in your strategy :
 
 ```ruby
-StrategyStores.configure do |config|
-  config.register_strategy(:software)
+class FirstSoftwareStrategy
+  include ::StrategyStore::Strategy::Implementation
+  strategy_columns do /* ... */ end
+
+  def perform(*args); /*...*/ end
+  def run(*args); /*...*/ end
+end
+
+
+## Run several different strategy :
+
+If you need to have 2 différents strategy in différent model, you will have to
+register manualy your strategy like this :
+
+```ruby
+StrategyStore.config.register_strategy(:software) do |s|
+  s.strategy_methods      = [:process] # By default use perform
+end
+
+class OtherModelRelatedStrategy
+  include ::StrategyStore::Strategy::Implementation
+  strategy_columns do |s|
+  end
+  def perform(*args); end
 end
 
 class Sofware
-  acts_as_strategy_store(:settings, strategy_id: 'software')
+  acts_as_strategy_store(:settings, strategy_ui_id: :software)
 end
 
-class FirstSoftwareStrategy < StrategyStores::Strategy
-  strategy_columns_for(:software) do |s|
-    /*...*/
-  end
-end
+soft.available_strategies  # [FirstSoftwareStrategy, SecondSoftwareStrategy]
 
-class SecondSoftwareStrategy < StrategyStores::Strategy
-  strategy_columns_for(:software) do |s|
-    /*...*/
-  end
-end
-``
+StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
+
+```

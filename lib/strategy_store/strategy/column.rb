@@ -1,10 +1,10 @@
 module StrategyStore
-  module Strategies
+  module Strategy
     class Column
 
       # Should be updated in Rails 5
       # TODO : Must be cleaned (binary, deciman_without_scale, ...?)
-      # TODO : Manage Array
+      # TODO : Manage Array & Hash
       CAST_MAPPING = {
         big_integer:            ::ActiveRecord::Type::BigInteger,
         binary:                 ::ActiveRecord::Type::Binary,
@@ -26,10 +26,10 @@ module StrategyStore
 
       # Instantiates a new column .
       #
-      # +name+ is the strategy column's name.
-      # +type+ is the type of the columns, such as +string+.
+      # +name+    is the strategy column's name.
+      # +type+    is the type of the columns, such as +string+.
       # +options+ is various information about the column (limit, scale, precision, null, default)
-      # +null+ determines if this column allows +NULL+ values.
+      # +null+    determines if this column allows +NULL+ values.
       def initialize(name, type, options = {})
         @cast_type = CAST_MAPPING.fetch(type).new(options.slice(:limit, :scale, :precision))
         @name    = name

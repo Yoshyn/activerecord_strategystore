@@ -1,60 +1,34 @@
 require 'test_helper'
-require 'pry-byebug'
 
-class StrategyStores::ConfigurationTest < ActiveSupport::TestCase
+class StrategyStore::ConfigurationTest < ActiveSupport::TestCase
 
-  def test_configuration_must_have_strategies
-    assert_equal false, ::StrategyStores.config.strategy(:other_strategy).nil?
-    assert_equal false, ::StrategyStores.config.strategy(:default).nil?
-    assert_equal false, ::StrategyStores.config.strategy(:my_amazing_strategy).nil?
+  def test_register_existing_strategy_must_raise_error
+    assert_raise StrategyStore::StrategyAlreadyRegister do
+      StrategyStore.register_strategy(:software_strategy)
+    end
   end
 
-  def test_configuration_strategies_must_inform_methods
-    assert_equal [:perform], ::StrategyStores.config.strategy(:other_strategy).method_names
-    assert_equal [:perform], ::StrategyStores.config.strategy(:default).method_names
-    assert_equal(
-      [:perform_process_1, :perform_process_2],
-      ::StrategyStores.config.strategy(:my_amazing_strategy).method_names
-    )
+  def test_default_strategy_parameters
+    config = StrategyStore.config
+    assert_equal [:perform],  config.default_strategy_methods
+    assert_equal [DefaultStrategy], config.default_class_implementations.to_a
   end
 
-  def test_registered_strategies_loading
-    assert_equal(
-      [FirstSoftwareStrategy, SecondSoftwareStrategy, OtherStrategy, DefaultStrategy].map(&:to_s).sort,
-      StrategyStores::Strategy.strategies.map(&:to_s).sort
-    )
+  def test_software_strategy_parameters
+    strategy = StrategyStore.fetch_strategy(:software_strategy)
+    assert_equal [:perform_process_1, :perform_process_2], strategy.strategy_methods
+    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], strategy.class_implementations.to_a
   end
 
-  def test_registered_strategies_with_name
-    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], FirstSoftwareStrategy.strategies
-    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], SecondSoftwareStrategy.strategies
-    assert_equal [OtherStrategy], OtherStrategy.strategies
+  def test_other_strategy_parameters
+    strategy = StrategyStore.fetch_strategy(:other_strategy)
+    assert_equal [:process, :run], strategy.strategy_methods
+    assert_equal [OtherStrategy],  strategy.class_implementations.to_a
   end
 
-  def test_registered_strategies_with_name
-    assert_equal [OtherStrategy], StrategyStores::Strategy.available_strategies(:other_strategy)
-  end
-
-  def test_not_registered_with_bad_suffix
-    assert_equal false, !!defined?(ThirdSoftwareNotAutoRequire)
-  end
-
-  def test_method_my_amazing_strategy
-    fss = FirstSoftwareStrategy.send(:new, nil, {})
-    assert_equal false, fss.respond_to?(:perfom)
-    assert_equal true, fss.respond_to?(:perform_process_1)
-    assert_equal true, fss.respond_to?(:perform_process_2)
-  end
-
-  def test_method_default_strategy
-    fss = DefaultStrategy.send(:new, nil, {})
-    assert_equal false, fss.respond_to?(:perform_process_1)
-    assert_equal true, fss.respond_to?(:perform)
-  end
-
-  def test_method_other_strategy
-    fss = OtherStrategy.send(:new, nil, {})
-    assert_equal false, fss.respond_to?(:perform_process_1)
-    assert_equal true, fss.respond_to?(:perform)
+  def test_my_amazing_strategy_strategy_parameters
+    strategy = StrategyStore.fetch_strategy(:my_amazing_strategy)
+    assert_equal [:perform], strategy.strategy_methods
+    assert_equal [],         strategy.class_implementations.to_a
   end
 end
