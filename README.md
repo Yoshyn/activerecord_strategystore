@@ -1,6 +1,6 @@
-= ActiverecordStrategystore
-
 # ActiveRecord::StrategyStore
+
+[![Code Climate](https://codeclimate.com/github/byroot/activerecord-typedstore.png)](https://codeclimate.com/github/Yoshyn/activerecord_strategystore)
 
 [ActiveRecord::StrategyStore](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) ActiveRecord::Store with various casted fields in order to perform a strategy.
 
@@ -9,6 +9,8 @@
 
 Add this line to your application's Gemfile:
 
+    gem 'activerecord-strategystore', git: 'git://github.com//Yoshyn/activerecord_strategystore.git'
+    -> TODO : make this possible
     gem 'activerecord-strategystore'
 
 And then execute:
@@ -95,7 +97,7 @@ class FirstSoftwareStrategy
   def perform(*args); /*...*/ end
   def run(*args); /*...*/ end
 end
-
+``
 
 ## Run several different strategy :
 
@@ -125,5 +127,8 @@ StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
 
 ```
 
-# TODO : Make a controller (Ajax use?)? A view with simple_form?
+## TODO :
+-> Make a dynamic strategy form (with possibility to simple_form) ?
+-> Make a controller with Ajax call ?
+-> Let the possibility to load the view & controller in the configuration
 
