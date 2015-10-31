@@ -4,6 +4,7 @@ class CreateSoftwares < ActiveRecord::Migration
       t.string :name
       t.text :settings
       t.text :other_settings
+      t.text :empty_settings
 
       t.timestamps null: false
     end

@@ -3,16 +3,22 @@ require 'test_helper'
 
 class StrategyStores::ActiveRecordStoreTest < ActiveSupport::TestCase
 
-  def test_available_strategies
-    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], ::Software.available_strategies
+  def test_strategies
+    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], ::Software.strategies
     sw = ::Software.new
-    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], sw.available_strategies
+    assert_equal [FirstSoftwareStrategy, SecondSoftwareStrategy], sw.strategies
   end
 
-  def test_other_available_strategies
-    assert_equal [OtherStrategy], ::Software.other_settings_available_strategies
+  def test_prefixed_strategies
+    assert_equal [OtherStrategy], ::Software.other_settings_strategies
     sw = ::Software.new
-    assert_equal [OtherStrategy], sw.other_settings_available_strategies
+    assert_equal [OtherStrategy], sw.other_settings_strategies
+  end
+
+  def test_prefixed_strategies_with_string
+    assert_equal [], ::Software.empty_strategies
+    sw = ::Software.new
+    assert_equal [], sw.empty_strategies
   end
 
   def test_can_instantize_and_change_strategy
@@ -62,5 +68,22 @@ class StrategyStores::ActiveRecordStoreTest < ActiveSupport::TestCase
     sw.strategy.fsp_num  = 23.98; assert_equal 23, sw.strategy.fsp_num
     sw.strategy.fsp_bool = 1;     assert_equal true, sw.strategy.fsp_bool
     sw.strategy.fsp_bool = false; assert_equal false, sw.strategy.fsp_bool
+  end
+
+  def test_strategy_assign_attributes
+    sw = ::Software.create(name: 'saa', strategy_class: 'FirstSoftwareStrategy')
+    sw.update_attributes(
+      strategy_attributes: {
+        fsp_str:  'Assign_Attributes',
+        fsp_num:  '12',
+        fsp_bool: 'true',
+        nawak:    'nawak'
+      }
+    )
+    sw_reload = ::Software.where(id: sw.id, name: 'saa').first
+    assert_equal 'Assign_Attributes', sw_reload.strategy.fsp_str
+    assert_equal 12,                  sw_reload.strategy.fsp_num
+    assert_equal true,                sw_reload.strategy.fsp_bool
+    assert_equal nil,                 sw_reload.settings[:nawak]
   end
 end

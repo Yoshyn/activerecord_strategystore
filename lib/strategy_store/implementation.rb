@@ -14,18 +14,6 @@ module StrategyStore
       class_attribute :implemented_strategy, instance_accessor: false
     end
 
-    def initialize(context_model, strategy_parameters)
-      columns         = self.class.columns
-      @context_model  = context_model
-
-      # TODO - rpc : Use the defined AccessorHash
-      #@strategy_hash = const_get("#{name}_accessor_hash".camelize).new(strategy_parameters, columns)
-      @strategy_hash = ::StrategyStore::Strategy::AccessorHash.new(strategy_parameters, columns)
-    end
-
-    def name;    self.class.to_s;    end
-    def columns; self.class.columns; end
-
     class_methods do
 
       def register_as_strategy(strategy_ui_id)
@@ -77,11 +65,30 @@ module StrategyStore
       # Generate the abstract method of the strategy that are defined in the configuration
       def generate_abstract_strategy_method
         implemented_strategy.strategy_methods.each do |method|
-          self.send(:define_method, method) do |*args|
-            raise NotImplementedError.new("Abstract method #{method} not implemented, or unsupported operation")
+          # TODO : in case of inherited strategy. Do not override the method
+          # TODO : Must be tested
+          unless self.respond_to?(method)
+            self.send(:define_method, method) do |*args|
+              raise NotImplementedError.new("Abstract method #{method} not implemented, or unsupported operation")
+            end
           end
         end
       end
+    end
+
+    # Return the name of the strategy
+    def name;    self.class.to_s;    end
+    # Return the columns of the strategy
+    def columns; self.class.columns; end
+
+    # TODO : must be private
+    def initialize(context_model, strategy_parameters)
+      columns         = self.class.columns
+      @context_model  = context_model
+
+      # TODO - rpc : Use the defined AccessorHash
+      #@strategy_hash = const_get("#{name}_accessor_hash".camelize).new(strategy_parameters, columns)
+      @strategy_hash = ::StrategyStore::Strategy::AccessorHash.new(strategy_parameters, columns)
     end
   end
 end

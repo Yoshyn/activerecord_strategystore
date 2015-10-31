@@ -4,9 +4,16 @@ module StrategyStores
       extend ActiveSupport::Concern
       included do
 
+        # Define a new strategy store and all corresponding methods.
+        #
+        # +strategy_store+ is the field to store the strategy.
+        # +options+        Same options as store method (expect 'accessors') and :
+        #   +use+    A strategy_ui_id. By default set to 'default'
+        #   +prefix+ Prefix the strategy method by the store field name or by a given string
         def self.acts_as_strategy_store(store_attribute, options={})
           use_strategy = options.delete(:use) || :default
-          prefix = options.delete(:prefix) && store_attribute
+          # TODO : Refactor this into a fonction
+          prefix = (op = options.delete(:prefix)) && ((op.is_a?(String) || op.is_a?(Symbol)) ? op : store_attribute)
 
           # Proc to return a symbol prefixed by the store_attribute if needed
           prefixed = Proc.new do |symbol|
@@ -20,7 +27,7 @@ module StrategyStores
             # Create a dynamic instance var with store_attribute
             str_inst_var = "@_#{prefixed[:strategy]}".freeze
             # Proc to to call a method prefixed by the store_attribute if needed
-            send_prefixed = Proc.new { |symbol| __send__(prefixed[symbol]) }
+            send_prefixed = Proc.new { |symbol, *args| __send__(prefixed[symbol], *args) }
 
             # Set the instance var this existing one or create it with the begin block
             instance_variable_set(str_inst_var,
@@ -44,26 +51,32 @@ module StrategyStores
           end
 
           # Return the list of available strategies for this model field
-          define_singleton_method(prefixed[:available_strategies]) do
-            str_inst_var = "@_#{prefixed[:available_strategies]}".freeze
+          # TODO : rename strategies
+          define_singleton_method(prefixed[:strategies]) do
+            str_inst_var = "@_#{prefixed[:strategies]}".freeze
             instance_variable_set(str_inst_var,
                 instance_variable_get(str_inst_var) || begin
                 StrategyStore.fetch_strategy(use_strategy).class_implementations.to_a
               end
             )
           end
-          delegate prefixed[:available_strategies], to: :class
+          delegate prefixed[:strategies], to: :class
+
+          # Make possible to accept hash of parameter like accept_neested_attributes
+          define_method(prefixed[:strategy_attributes=]) do |attributes|
+            _strategy = __send__(prefixed[:strategy])
+            assignable_attributes = attributes.slice(*_strategy.columns.keys)
+            assignable_attributes.each do |attr_name, value|
+              _strategy.send("#{attr_name}=", value)
+            end
+          end
 
           # PRIVATE METHODS
-
           # Get the strategy hash from store or initialize it if not exist.
           define_method(prefixed[:initialize_or_retrive_strategy_hash]) do
-            send(store_attribute)[prefixed[:strategy]] ||= HashWithIndifferentAccess.new
+            __send__(store_attribute)[prefixed[:strategy]] ||= HashWithIndifferentAccess.new
           end
-          send(:private, prefixed[:initialize_or_retrive_strategy_hash])
-
-          # TODO : Make possible to accept hash of parameter (accept_neested)
-          #Define strategy=
+          __send__(:private, prefixed[:initialize_or_retrive_strategy_hash])
         end
       end
     end

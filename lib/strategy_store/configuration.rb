@@ -37,6 +37,7 @@ module StrategyStore
     end
 
     def fetch_strategy(strategy_ui_id)
+      # TODO : Do not raise error here, just warning a message that the strategy is not registered in initialize
       raise StrategyStore::StrategyMissing.new(strategy_ui_id) unless @registered_strategies[strategy_ui_id]
       @registered_strategies[strategy_ui_id]
     end

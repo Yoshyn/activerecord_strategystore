@@ -10,6 +10,8 @@ StrategyStore.configure do |config|
   end
 
   config.register_strategy(:my_amazing_strategy)
+
+  config.register_strategy(:empty_strategy)
 end
 
 require 'first_software_strategy'

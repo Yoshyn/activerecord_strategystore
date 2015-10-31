@@ -1,7 +1,4 @@
 = ActiverecordStrategystore
-# WARNING : THIS IS ONLY A PROF OF CONCEPT.
-
-# TODO : Freeze all string if possible
 
 # ActiveRecord::StrategyStore
 
@@ -60,9 +57,9 @@ end
 
 soft = Sofware.create(name: 'Sofware1')
 soft.strategy                         # nil
-soft.available_strategies             # [FirstSoftwareStrategy, SecondSoftwareStrategy]
+soft.strategies             # [FirstSoftwareStrategy, SecondSoftwareStrategy]
 
-soft.strategy = FirstSoftwareStrategy # Can also be string
+soft.strategy = FirstSoftwareStrategy # Can also be setted with string
 
 soft.strategy.perform(1) # => "FirstSoftwareStrategy first_code 0 false [1]"
 
@@ -79,6 +76,8 @@ soft.strategy.perform # => raise NotImplementedError
 ```
 
 ## Use anothers method(s) than perform :
+
+To define other methods that must be performed by your strategy, you need to set the default_strategy_methods configuration variable in an initializer.
 
 ```ruby
 StrategyStore.configure do |config|
@@ -100,8 +99,9 @@ end
 
 ## Run several different strategy :
 
-If you need to have 2 différents strategy in différent model, you will have to
-register manualy your strategy like this :
+If you need to use several time these gems in your project (several strategy in one model or several strategy for several model), You probably want to avoid have the full list of strategies that include StrategyStore::Implementation.
+
+In order to avoid this, you will have to register manualy your strategy in an initializer like this :
 
 ```ruby
 StrategyStore.config.register_strategy(:software) do |s|
@@ -110,17 +110,20 @@ end
 
 class OtherModelRelatedStrategy
   include ::StrategyStore::Strategy::Implementation
-  strategy_columns do |s|
+  strategy_columns_for(:software) do |s|
   end
   def perform(*args); end
 end
 
 class Sofware
-  acts_as_strategy_store(:settings, strategy_ui_id: :software)
+  acts_as_strategy_store(:settings, use: :software)
 end
 
-soft.available_strategies  # [FirstSoftwareStrategy, SecondSoftwareStrategy]
+soft.strategies  # [FirstSoftwareStrategy, SecondSoftwareStrategy]
 
 StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
 
 ```
+
+# TODO : Make a controller (Ajax use?)? A view with simple_form?
+
