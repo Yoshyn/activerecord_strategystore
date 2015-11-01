@@ -128,10 +128,21 @@ StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
 
 ```
 
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request
+
+You can also just ask questions in issues. :)
+
+
 ## TODO :
--> Make a dynamic strategy form (with possibility to simple_form) ?
--> Make a controller with Ajax call ?
--> Let the possibility to load the view & controller in the configuration
--> Setup travis
--> Setup coverage
+  - Make a dynamic strategy form (with possibility to simple_form) ?
+  - Make a controller with Ajax call ?
+  - Let the possibility to load the view & controller in the configuration
+  - Setup travis
+  - Setup coverage
 
