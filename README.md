@@ -1,10 +1,9 @@
 # ActiveRecord::StrategyStore
 
-[![Gem Version](http://badge.fury.io/rb/activerecord_strategystore)](http://badge.fury.io/rb/activerecord_strategystore)
+[![Gem Version](http://badge.fury.io/rb/activerecord_strategystore.png)](http://badge.fury.io/rb/activerecord_strategystore)
 [![Code Climate](https://codeclimate.com/github/byroot/activerecord-typedstore.png)](https://codeclimate.com/github/Yoshyn/activerecord_strategystore)
 
-[ActiveRecord::StrategyStore](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) ActiveRecord::Store with various casted fields in order to perform a strategy.
-
+[ActiveRecord::StrategyStore](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) with various casted fields in order to perform a strategy.
 
 ## Installation
 
@@ -98,7 +97,7 @@ class FirstSoftwareStrategy
   def perform(*args); /*...*/ end
   def run(*args); /*...*/ end
 end
-``
+```
 
 ## Run several different strategy :
 
@@ -125,7 +124,6 @@ end
 soft.strategies  # [FirstSoftwareStrategy, SecondSoftwareStrategy]
 
 StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
-
 ```
 
 ## Contributing
