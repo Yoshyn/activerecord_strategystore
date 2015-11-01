@@ -1,5 +1,6 @@
 # ActiveRecord::StrategyStore
 
+[![Gem Version](http://badge.fury.io/rb/activerecord_strategystore)](http://badge.fury.io/rb/activerecord_strategystore)
 [![Code Climate](https://codeclimate.com/github/byroot/activerecord-typedstore.png)](https://codeclimate.com/github/Yoshyn/activerecord_strategystore)
 
 [ActiveRecord::StrategyStore](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) ActiveRecord::Store with various casted fields in order to perform a strategy.
@@ -131,4 +132,6 @@ StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
 -> Make a dynamic strategy form (with possibility to simple_form) ?
 -> Make a controller with Ajax call ?
 -> Let the possibility to load the view & controller in the configuration
+-> Setup travis
+-> Setup coverage
 
