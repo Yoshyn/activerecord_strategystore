@@ -9,9 +9,9 @@
 
 Add this line to your application's Gemfile:
 
-    gem 'activerecord-strategystore', git: 'git://github.com//Yoshyn/activerecord_strategystore.git'
-    -> TODO : make this possible
     gem 'activerecord-strategystore'
+    OR
+    gem 'activerecord-strategystore', git: 'git://github.com//Yoshyn/activerecord_strategystore.git'
 
 And then execute:
 
@@ -23,7 +23,9 @@ Or install it yourself as:
 
 ## Usage
 
-It works like [ActiveRecord::Store documentation](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) and then you declare your attributes into your strategy.
+It works like [ActiveRecord::Store documentation](http://api.rubyonrails.org/classes/ActiveRecord/Store.html) :
+
+You declare a field like a store using remplacing the store keyword by acts_as_strategy_store
 
 ```ruby
 # == Schema Information
@@ -34,7 +36,11 @@ It works like [ActiveRecord::Store documentation](http://api.rubyonrails.org/cla
 class Sofware
   acts_as_strategy_store(:settings)
 end
+```
 
+Then, in a separate file, you define your strategy columns with their type.
+
+```ruby
 class FirstSoftwareStrategy
   include ::StrategyStore::Strategy::Implementation
 
@@ -56,7 +62,11 @@ class SecondSoftwareStrategy
     s.string  :code, null: false, default: 'second_code'
   end
 end
+```
 
+You can now set a strategy to your model with the relative strategy fields that are automaticaly setted.
+
+```ruby
 soft = Sofware.create(name: 'Sofware1')
 soft.strategy                         # nil
 soft.strategies             # [FirstSoftwareStrategy, SecondSoftwareStrategy]
@@ -79,6 +89,8 @@ soft.strategy.perform # => raise NotImplementedError
 
 ## Use anothers method(s) than perform :
 
+By default a method perform that raise `NotImplementedError` is setted in each strategy.
+
 To define other methods that must be performed by your strategy, you need to set the default_strategy_methods configuration variable in an initializer.
 
 ```ruby
@@ -87,7 +99,7 @@ StrategyStore.configure do |config|
 end
 ```
 
-Then you need to defined theses methods in your strategy :
+Then you need to implement theses methods in your strategy :
 
 ```ruby
 class FirstSoftwareStrategy
@@ -106,24 +118,26 @@ If you need to use several time these gems in your project (several strategy in 
 In order to avoid this, you will have to register manualy your strategy in an initializer like this :
 
 ```ruby
-StrategyStore.config.register_strategy(:software) do |s|
-  s.strategy_methods      = [:process] # By default use perform
-end
+StrategyStore.config.register_strategy(:software)
+```
 
+```ruby
 class OtherModelRelatedStrategy
   include ::StrategyStore::Strategy::Implementation
   strategy_columns_for(:software) do |s|
   end
   def perform(*args); end
 end
+```
 
+```ruby
 class Sofware
   acts_as_strategy_store(:settings, use: :software)
 end
 
 soft.strategies  # [FirstSoftwareStrategy, SecondSoftwareStrategy]
 
-StrategyStore.config.fetch_strategy(:software) # Return StrategyDefinition
+StrategyStore.config.fetch_strategy(:software) # Return Strategy Definition
 ```
 
 ## Contributing
